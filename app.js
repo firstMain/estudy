@@ -152,7 +152,7 @@ let up = {
     };
 
     const parseDescription = async (guild) => {
-        let description = `Atualizado em : ${moment().tz('America/Recife').format('H:m:s')} \n`;
+        let description = `Atualizado em : ${moment().tz('America/Recife').format('HH:mm:s')} \n`;
          description += '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
