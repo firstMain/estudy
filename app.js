@@ -172,7 +172,8 @@ commander.createCommand("hunted")
             let gained = (parseInt(player.level) - parseInt(player.old.level));
 
             if (player && player.name && (player.name !== '' || player.name !== ' ')) {
-                description += (`${player.name}  |  RR : ${player.resets}   |  Lv : ${player.level}  |  Antes : ${player.old.level} Lv  |  Ganho : ${gained} Lv  |  Atualizado : ${player.verified} \n \n `);
+                description += (`${player.name}  |  RR : ${player.resets}  |  Lv : ${player.level}  |  Antes : ${player.old.level} Lv  |  Ganho : ${gained} Lv  |  Atualizado : ${player.verified} \n \n `);
+                description+= '------------------------------------------------------------------------------------------------------------------------------------------------ \n';
             }
         }
 
