@@ -2,7 +2,7 @@
 
 const rp      = require('request-promise');
 const cheerio = require('cheerio');
-const moment  = require('moment');
+const moment  = require('moment-timezone');
 const { TeamSpeak } = require("ts3-nodejs-library");
 
 const GUILDS = [
@@ -152,7 +152,7 @@ let up = {
     };
 
     const parseDescription = async (guild) => {
-        let description = `Atualizado em : ${moment().format('H:m:s')} \n`;
+        let description = `Atualizado em : ${moment().tz('America/Recife').format('H:m:s')} \n`;
          description += '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
