@@ -186,6 +186,7 @@ let up = {
             password: 'P3S0i0Hk4KFn',
             serverport: '9007',
         }).then((teamspeak) => {
+            console.log('Conexão Feita');
             global.teamspeak = teamspeak;
         });
     };
