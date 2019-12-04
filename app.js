@@ -89,11 +89,14 @@ commander.createCommand("hunted")
                 status = status === 'red' ? 'offline' : 'online';
                 const name = player.replace(' ', '').replace(' ', '').replace(' ', '').replace('\,/*-/\'/', '').trim().toLowerCase();
 
+                let verified_at = moment().tz('America/Recife').format('HH:mm:s');
+
                 const data = {
                     name: player,
                     resets: resets,
                     level: level,
                     status: status,
+                    verified: verified_at
                 };
 
                 await setInfo(guild.name, data, name);
@@ -131,6 +134,7 @@ commander.createCommand("hunted")
                     level: player.level,
                     resets: player.resets,
                     status: player.status,
+                    verified: player.verified,
                     old: old,
                 });
 
@@ -161,15 +165,14 @@ commander.createCommand("hunted")
     };
 
     const parseDescription = async (guild) => {
-        let description = `Atualizado em : ${moment().tz('America/Recife').format('HH:mm:s')} \n`;
-         description += '============================ UPANDO ============================ \n \n';
+         let description = '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
             const player = up[guild][p];
             let gained = (parseInt(player.level) - parseInt(player.old.level));
 
             if (player && player.name && (player.name !== '' || player.name !== ' ')) {
-                description += (`${player.name}  |  RR : ${player.resets}   |  Lv : ${player.level}  |  Antes : ${player.old.level} Lv  |  Ganho : ${gained} Lv  \n \n `);
+                description += (`${player.name}  |  RR : ${player.resets}   |  Lv : ${player.level}  |  Antes : ${player.old.level} Lv  |  Ganho : ${gained} Lv  |  Atualizado : ${player.verified} \n \n `);
             }
         }
 
