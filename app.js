@@ -152,7 +152,8 @@ let up = {
     };
 
     const parseDescription = async (guild) => {
-        let description = '============================ UPANDO ============================ \n \n';
+        let description = `Atualizado em : ${moment().format('H:m:s')} \n`;
+         description += '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
             const player = up[guild][p];
