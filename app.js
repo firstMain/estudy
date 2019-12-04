@@ -4,31 +4,40 @@ const rp      = require('request-promise');
 const cheerio = require('cheerio');
 const moment  = require('moment-timezone');
 const { TeamSpeak } = require("ts3-nodejs-library");
+const { Commander } = require('./lib/Commander');
+
+const commander = new Commander({prefix: '!'});
 
 const GUILDS = [
     {name: 'beibos', tsId: '47', dmlId: '7'},
-    {name: 'outplay', tsId: '46', dmlId: '338'}
+    {name: 'outplay', tsId: '46', dmlId: '338'},
+    {name: 'silencer', tsId: '48', dmlId: '298'}
 ];
 
-let info = {
-    'beibos': [],
-    'outplay': [],
-};
+let info = {};
 
-let oldInfo = {
-    'beibos': [],
-    'outplay': [],
-};
+let oldInfo = {};
 
-let online = {
-    'beibos': [],
-    'outplay': [],
-};
+let online = {};
 
-let up = {
-    'beibos' : [],
-    'outplay': [],
-};
+let up = {};
+
+for (const guild of GUILDS) {
+    info[guild.name]    = [];
+    oldInfo[guild.name] = [];
+    online[guild.name]  = [];
+    up[guild.name]      = [];
+}
+
+commander.createCommand("hunted")
+    .setHelp("Add player hunted list")
+    .addArgument(arg => arg.string.setName("name"))
+    .addArgument(arg => arg.string.setName('midName').optional())
+    .addArgument(arg => arg.string.setName('lastName').optional())
+    .run(async event => {
+        const player = `${event.arguments.name} ${event.arguments.midName || ''} ${event.arguments.lastName || ''}`.trim();
+        await event.reply(`${player} adicionado na lista de hunted`);
+    });
 
 (async () => {
 
@@ -189,6 +198,7 @@ let up = {
         }).then((teamspeak) => {
             console.log('Conexão Feita');
             global.teamspeak = teamspeak;
+            commander.addInstance(global.teamspeak);
         });
     };
 
