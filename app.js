@@ -4,9 +4,8 @@ const rp      = require('request-promise');
 const cheerio = require('cheerio');
 const moment  = require('moment-timezone');
 const { TeamSpeak } = require("ts3-nodejs-library");
-const { Commander } = require('./lib/Commander');
-
-const commander = new Commander({prefix: '!'});
+const commander  = require('./commands');
+const mongoose = require('mongoose');
 
 const GUILDS = [
     {name: 'beibos', tsId: '47', dmlId: '7'},
@@ -28,16 +27,6 @@ for (const guild of GUILDS) {
     online[guild.name]  = [];
     up[guild.name]      = [];
 }
-
-commander.createCommand("hunted")
-    .setHelp("Add player hunted list")
-    .addArgument(arg => arg.string.setName("name"))
-    .addArgument(arg => arg.string.setName('midName').optional())
-    .addArgument(arg => arg.string.setName('lastName').optional())
-    .run(async event => {
-        const player = `${event.arguments.name} ${event.arguments.midName || ''} ${event.arguments.lastName || ''}`.trim();
-        await event.reply(`${player} adicionado na lista de hunted`);
-    });
 
 (async () => {
 
@@ -202,6 +191,13 @@ commander.createCommand("hunted")
         }).then((teamspeak) => {
             console.log('Conexão Feita');
             global.teamspeak = teamspeak;
+            // await teamspeak.clientKick(1, 4, 'dubot');
+            // await teamspeak.clientKick(12, 4, 'dubot');
+            // await teamspeak.clientKick(5, 4, 'dubot');
+            // const clients = await teamspeak.clientList({client_type: 0});
+            // for(const client of clients) {
+            //     console.log('name', client.nickname, 'id', client.clid);
+            // }
             commander.addInstance(global.teamspeak);
         });
     };
@@ -230,12 +226,18 @@ commander.createCommand("hunted")
         })
     };
 
+    const connect = async () => {
+      await mongoose.connect("mongodb://dubot:duduaki123@ds253398.mlab.com:53398/dubot", {useNewUrlParser: true, useUnifiedTopology: true});
+      console.log('Mongo DB Connected');
+    };
+
     const run = async () => {
         await execute();
         await sleep(20000);
         await run();
     };
 
+    await connect();
     await teamspeak();
     await run();
 })();
