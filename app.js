@@ -6,12 +6,9 @@ const moment  = require('moment-timezone');
 const { TeamSpeak } = require("ts3-nodejs-library");
 const commander  = require('./commands');
 const mongoose = require('mongoose');
+const Guild = require('./models/guild');
 
-const GUILDS = [
-    {name: 'beibos', tsId: '47', dmlId: '7'},
-    {name: 'outplay', tsId: '46', dmlId: '338'},
-    {name: 'silencer', tsId: '48', dmlId: '298'}
-];
+let GUILDS = [];
 
 let info = {};
 
@@ -20,13 +17,6 @@ let oldInfo = {};
 let online = {};
 
 let up = {};
-
-for (const guild of GUILDS) {
-    info[guild.name]    = [];
-    oldInfo[guild.name] = [];
-    online[guild.name]  = [];
-    up[guild.name]      = [];
-}
 
 (async () => {
 
@@ -126,7 +116,6 @@ for (const guild of GUILDS) {
                     verified: player.verified,
                     old: old,
                 });
-
             } else if (old && player.level < old.level) {
                 await online[guild].push({
                     name: player.name,
@@ -154,6 +143,7 @@ for (const guild of GUILDS) {
     };
 
     const parseDescription = async (guild) => {
+        console.log('PLAYERS UP ',up[guild]);
          let description = '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
@@ -188,17 +178,23 @@ for (const guild of GUILDS) {
             username: 'dubot',
             password: 'P3S0i0Hk4KFn',
             serverport: '9007',
-        }).then((teamspeak) => {
+        }).then(async(teamspeak) => {
             console.log('Conexão Feita');
             global.teamspeak = teamspeak;
-            // await teamspeak.clientKick(1, 4, 'dubot');
-            // await teamspeak.clientKick(12, 4, 'dubot');
-            // await teamspeak.clientKick(5, 4, 'dubot');
-            // const clients = await teamspeak.clientList({client_type: 0});
-            // for(const client of clients) {
-            //     console.log('name', client.nickname, 'id', client.clid);
-            // }
+
+            // const channel = await teamspeak.channelFind('PVP');
+            // console.log(await teamspeak.channelDelete(46));
+            // process.exit();
+            // console.log(channel);process.exit();
+
             commander.addInstance(global.teamspeak);
+
+            teamspeak.on("close", async () => {
+                console.log("disconnected, trying to reconnect...");
+                await teamspeak.reconnect(-1, 1000);
+                console.log("reconnected!");
+            });
+
         });
     };
 
@@ -226,19 +222,36 @@ for (const guild of GUILDS) {
         })
     };
 
+    const loadGuilds = async () => {
+      const guilds = await Guild.find({});
+      GUILDS = [];
+
+        for (const guild of guilds) {
+            GUILDS.push(guild);
+
+            info[guild.name]    = [];
+            oldInfo[guild.name] = [];
+            online[guild.name]  = [];
+            up[guild.name]      = [];
+        }
+
+        console.log('Guilds carregadas');
+    };
+
     const connect = async () => {
       await mongoose.connect("mongodb://dubot:duduaki123@ds253398.mlab.com:53398/dubot", {useNewUrlParser: true, useUnifiedTopology: true});
       console.log('Mongo DB Connected');
     };
 
     const run = async () => {
+        await loadGuilds();
         await execute();
         await sleep(20000);
         await run();
     };
 
     await connect();
-    await teamspeak();
+    await teamspeak()
     await run();
 })();
 
