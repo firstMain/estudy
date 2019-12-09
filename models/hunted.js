@@ -21,7 +21,7 @@ const huntedSchema = new Schema({
         type: String,
     },
     lastLevel: {
-        type: String,
+        type: Object,
     }
 });
 

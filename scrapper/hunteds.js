@@ -4,12 +4,13 @@ const rp      = require('request-promise');
 const Hunted  = require('../models/hunted');
 const cheerio = require('cheerio');
 const moment  = require('moment-timezone');
+const chalk   = require('chalk');
 
 module.exports = async () => {
-    console.log('Iniciando Hunteds');
+    console.log(chalk.cyan('Init scan hunteds'));
     const players = [];
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const hunteds = await Hunted.find({});
 
         for (const hunted of hunteds) {
