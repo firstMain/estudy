@@ -7,12 +7,11 @@ const { TeamSpeak } = require("ts3-nodejs-library");
 const commander  = require('./commands');
 const mongoose = require('mongoose');
 const Guild = require('./models/guild');
+const Player = require('./models/player');
 
-let GUILDS = [];
+let GUILDS = {};
 
 let info = {};
-
-let oldInfo = {};
 
 let online = {};
 
@@ -81,33 +80,34 @@ let up = {};
                 await setInfo(guild.name, data, name);
             }
 
-            await syncPlayers(guild.name);
+            try {
+                await syncPlayers(guild.name);
 
-            const description = await parseDescription(guild.name);
+                const description = await parseDescription(guild.name);
 
-            global.teamspeak.channelEdit(guild.tsId, {channel_description: description});
+                global.teamspeak.channelEdit(guild.tsId, {channel_description: description});
 
-            console.log(`GUILD ${guild.name.toUpperCase()} ATUALIZADA NO TS`);
-
+                console.log(`GUILD ${guild.name.toUpperCase()} ATUALIZADA NO TS`);
+            } catch(err) {
+                console.log(`Algum problema ao sicronizar os players da guild ${guild.name.toUpperCase()}`)
+            }
         }
     };
 
     const syncPlayers = async (guild) => {
-
         await clearOnline(guild);
         await clearUp(guild);
 
         for (const p in info[guild]) {
-
             //PLAYER && INFO É AS NOVAS INFORMAÇÕES
             // OLDINFO SÃO AS VELHAS INFORMAÇÕES
             let player = info[guild][p];
-            let old = oldInfo[guild][p];
+            let old = await Player.findOne({name: player.name});
 
             // VERIFICA SE TEM INFORMAÇÃO ANTIGA, CASO SIM VERIFICA
             // SE O LEVEL DAS INFORMAÇÕES NOVAS SÃO MAIOR QUE A ANTIGA
             if (old && player.level > old.level) {
-                await setOldInfo(guild, player, p);
+                await updateOldInfo(player);
                 await up[guild].push({
                     name: player.name,
                     level: player.level,
@@ -131,7 +131,7 @@ let up = {};
                     status: player.status,
                 });
             } else {
-                await setOldInfo(guild, player, p);
+                await createOldInfo(player);
                 await online[guild].push({
                     name: player.name,
                     level: player.level,
@@ -143,7 +143,6 @@ let up = {};
     };
 
     const parseDescription = async (guild) => {
-        console.log('PLAYERS UP ',up[guild]);
          let description = '============================ UPANDO ============================ \n \n';
 
         for (const p in up[guild]) {
@@ -200,10 +199,12 @@ let up = {};
 
     const clearOnline = async (guild) => {
           online[guild] = [];
+          return online;
     };
 
     const clearUp = async (guild) => {
         up[guild] = [];
+        return up;
     };
 
     const setInfo = async (guild, player, index) => {
@@ -211,9 +212,25 @@ let up = {};
         return info;
     };
 
-    const setOldInfo = async (guild, player, index) => {
-        oldInfo[guild][index] = player;
-        return oldInfo;
+    const updateOldInfo = async (player) => {
+        const filter = {name: player.name};
+
+        const p = await Player.findOne(filter);
+        p.status    = player.status;
+        p.level     = player.level;
+        p.verified  = player.verified;
+        p.lastLevel = player.level;
+
+        await p.save();
+
+        return p;
+    };
+
+    const createOldInfo = async (player) => {
+        const newPlayer = await new Player(player);
+        await newPlayer.save();
+
+        return newPlayer;
     };
 
     const sleep = async (ms) => {
@@ -230,7 +247,6 @@ let up = {};
             GUILDS.push(guild);
 
             info[guild.name]    = [];
-            oldInfo[guild.name] = [];
             online[guild.name]  = [];
             up[guild.name]      = [];
         }
@@ -251,7 +267,7 @@ let up = {};
     };
 
     await connect();
-    await teamspeak()
+    await teamspeak();
     await run();
 })();
 

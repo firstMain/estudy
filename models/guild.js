@@ -8,6 +8,10 @@ const guildSchema = new Schema({
       type: String,
       lowercase: true,
    },
+   tsName: {
+      type: String,
+      required: true,
+   },
    tsId: {
       type: Number,
    },

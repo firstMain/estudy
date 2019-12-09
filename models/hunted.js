@@ -3,30 +3,26 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const playerSchema = new Schema({
+const huntedSchema = new Schema({
     name: {
         type: String,
         required: true,
     },
     level: {
         type: String,
-        required: true,
     },
-    resets: {
+    reset: {
         type: String,
-        required: true,
     },
     status: {
         type: String,
-        required: true,
     },
     verified: {
-        type: String,
-        required: true,
+        type: Date,
     },
     lastLevel: {
         type: String,
     }
 });
 
-module.exports = mongoose.model('Player', playerSchema);
+module.exports = mongoose.model('Hunted', huntedSchema);
