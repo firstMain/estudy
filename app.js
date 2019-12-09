@@ -8,6 +8,7 @@ const commander  = require('./commands');
 const mongoose = require('mongoose');
 const Guild = require('./models/guild');
 const Player = require('./models/player');
+const scanHunteds = require('./scrapper/hunteds');
 
 let GUILDS = {};
 
@@ -20,6 +21,7 @@ let up = {};
 (async () => {
 
     const execute = async () => {
+        console.log('Iniciando busca de Guilds');
         for (const guild of GUILDS) {
             const players = [];
 
@@ -181,7 +183,8 @@ let up = {};
             console.log('Conexão Feita');
             global.teamspeak = teamspeak;
 
-            // const channel = await teamspeak.channelFind('PVP');
+            // const channel = await teamspeak.channelFind('HUNTEDS');
+            // console.log(channel);
             // console.log(await teamspeak.channelDelete(46));
             // process.exit();
             // console.log(channel);process.exit();
@@ -261,6 +264,7 @@ let up = {};
 
     const run = async () => {
         await loadGuilds();
+        scanHunteds();
         await execute();
         await sleep(20000);
         await run();

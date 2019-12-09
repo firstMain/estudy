@@ -18,7 +18,7 @@ const huntedSchema = new Schema({
         type: String,
     },
     verified: {
-        type: Date,
+        type: String,
     },
     lastLevel: {
         type: String,
