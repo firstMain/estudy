@@ -22,8 +22,9 @@ module.exports = async () => {
         .addArgument(arg => arg.string.setName("name"))
         .addArgument(arg => arg.string.setName('midName').optional())
         .addArgument(arg => arg.string.setName('lastName').optional())
+        .addArgument(arg => arg.string.setName('lastName2').optional())
         .run(async event => {
-            const player = `${event.arguments.name} ${event.arguments.midName || ''} ${event.arguments.lastName || ''}`.trim();
+            const player = `${event.arguments.name} ${event.arguments.midName || ''} ${event.arguments.lastName || ''} ${event.arguments.lastName2 || ''}`.trim();
 
             try {
                 const hunted = await Hunted.deleteOne({name: player});
