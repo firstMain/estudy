@@ -54,13 +54,11 @@ module.exports = async () => {
 
                 const response = await rp(options);
                 const $ = await cheerio.load(response);
-
                 $('font[color="green"]').each((i, el) => {
                     players.push(el.children[0].data);
                 });
 
                 for (const player of players) {
-
                     const options = {
 
                         uri: `https://www.demolidores.com.br/?subtopic=characters&name=${player}`,
@@ -106,6 +104,7 @@ module.exports = async () => {
 
                     console.log(`GUILD ${guild.name.toUpperCase()} ATUALIZADA NO TS`);
                 } catch(err) {
+                    console.log('ERROR', err);
                     console.log(`Algum problema ao sicronizar os players da guild ${guild.name.toUpperCase()}`)
                 }
             }
@@ -123,7 +122,7 @@ module.exports = async () => {
 
                 // VERIFICA SE TEM INFORMAÇÃO ANTIGA, CASO SIM VERIFICA
                 // SE O LEVEL DAS INFORMAÇÕES NOVAS SÃO MAIOR QUE A ANTIGA
-                if (old && player.level > old.level) {
+                if (old && (player.level > old.level || (player.resets > old.resets && old.level > player.level))) {
                     await updateOldInfo(player);
                     await up[guild].push({
                         name: player.name,
@@ -133,14 +132,14 @@ module.exports = async () => {
                         verified: player.verified,
                         old: old,
                     });
-                } else if (old && player.level < old.level) {
+                } else if (old && (player.level < old.level || (player.resets < old.resets && old.level < player.level))) {
                     await online[guild].push({
                         name: player.name,
                         level: player.level,
                         resets: player.resets,
                         status: player.status,
                     });
-                } else if (old && player.level === old.level) {
+                } else if (old && (player.level === old.level && player.resets === old.resets)) {
                     await online[guild].push({
                         name: player.name,
                         level: player.level,
@@ -202,7 +201,6 @@ module.exports = async () => {
 
         const updateOldInfo = async (player) => {
             const filter = {name: player.name};
-
             const p = await Player.findOne(filter);
             p.status    = player.status;
             p.level     = player.level;
@@ -217,7 +215,6 @@ module.exports = async () => {
         const createOldInfo = async (player) => {
             const newPlayer = await new Player(player);
             await newPlayer.save();
-
             return newPlayer;
         };
 
