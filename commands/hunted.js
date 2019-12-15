@@ -5,7 +5,7 @@ const Hunted = require('../models/hunted');
 module.exports = async () => {
     commander.createCommand("hunted-add")
         .setHelp("Adiciona um player a lista de hunted, para isso informe apenas o nome do player")
-        .addArgument(arg => arg.string.setName("name").minimum(3))
+        .addArgument(arg => arg.string.setName("name"))
         .addArgument(arg => arg.string.setName('midName').optional())
         .addArgument(arg => arg.string.setName('lastName').optional())
         .addArgument(arg => arg.string.setName('lastName2').optional())
